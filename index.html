@@ -108,15 +108,21 @@ header.top p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
 .badge{font-family:var(--font-mono);font-size:.74rem;padding:3px 8px;border-radius:5px;background:var(--accent-soft);color:var(--accent);font-weight:500}
 .badge.warn{background:var(--libur);color:var(--libur-ink)}
 .rows{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
-.row{display:grid;grid-template-columns:6.4rem minmax(0,1fr);gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:1.5rem 6.4rem minmax(0,1fr);gap:8px;padding:9px 0;border-top:1px solid var(--line)}
 .row:first-child{border-top:0}
+.row .period{font-family:var(--font-mono);font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .row .tm{font-family:var(--font-mono);font-size:.78rem;font-variant-numeric:tabular-nums}
-.row .tm small{display:block;color:var(--muted);font-size:.68rem;margin-top:1px}
 .row .ti{font-weight:600;display:flex;gap:7px;align-items:baseline}
 .row .ti .dot{transform:translateY(0)}
 .row .gu{color:var(--muted);font-size:.84rem;margin-top:1px}
 .row.brk,.row.spc{padding:6px 0}
-.row.brk .ti,.row.spc .ti{font-weight:500;color:var(--muted);font-size:.86rem}
+.row.brk,.row-group.prayer{outline:1px solid #fff;outline-offset:4px;border-radius:6px}
+.row.brk .ti,.row.spc .ti,.row.prayer-part .ti{font-weight:500;color:var(--muted);font-size:.86rem}
+.row-group.prayer{display:flex;flex-direction:column;gap:2px;padding:6px 0}
+.row.prayer-part{border:0;padding:0}
+.row-group.prayer{position:relative}
+.row-group.prayer .prayer-label{position:absolute;left:calc(1.5rem + 8px + 6.4rem + 8px);right:0;top:50%;transform:translateY(-50%);text-align:center;pointer-events:none}
+.row-group.prayer .prayer-part .ti{visibility:hidden}
 .row.hit{background:var(--accent-soft);margin-inline:-8px;padding-inline:8px;border-radius:7px;border-top-color:transparent}
 .empty{color:var(--muted);padding:10px 0}
 .tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
@@ -258,7 +264,6 @@ function subjectsOf(d){
   var s=[]; b.forEach(function(x){if(x.kind==="les"&&s.indexOf(x.subj)<0)s.push(x.subj)});
   return s;
 }
-function jamText(b){return b.jam1===b.jam2?"Jam "+b.jam1:"Jam "+b.jam1+"–"+b.jam2}
 function rangeFor(d,subj){
   var b=dayBlocks(d); if(!b) return "";
   var r=b.filter(function(x){return x.kind==="les"&&x.subj===subj});
@@ -321,13 +326,24 @@ function renderDetail(){
   else if(isL){ h+='<p class="empty">Tanggal ini kamu tandai libur.</p>'; }
   else{
     h+='<ul class="rows">';
-    dayBlocks(sel).forEach(function(b){
+    var blocks=dayBlocks(sel);
+    for(var i=0;i<blocks.length;i++){
+      var b=blocks[i];
       if(b.kind==="les"){
-        h+='<li class="row'+(filter===b.subj?" hit":"")+'"><div class="tm">'+b.s+"–"+b.e+"<small>"+jamText(b)+'</small></div><div><div class="ti"><span class="dot" style="--h:'+HUE[b.subj]+'"></span>'+b.subj+'</div><div class="gu">'+b.teacher+"</div></div></li>";
+        h+='<li class="row'+(filter===b.subj?" hit":"")+'"><span class="period">'+b.jam+'</span><div class="tm">'+b.s+"–"+b.e+'</div><div><div class="ti"><span class="dot" style="--h:'+HUE[b.subj]+'"></span>'+b.subj+'</div><div class="gu">'+b.teacher+"</div></div></li>";
+      } else if(b.label==="Sholat Jumat"&&blocks[i+1]&&blocks[i+1].label==="Sholat Jumat"){
+        h+='<li class="row-group prayer">';
+        for(var j=i;j<i+2;j++){
+          var p=blocks[j];
+          h+='<div class="row prayer-part"><span class="period">'+p.jam+'</span><div class="tm">'+p.s+"–"+p.e+'</div><div class="ti"></div></div>';
+        }
+        h+='<span class="prayer-label">Sholat Jumat</span>';
+        h+="</li>";
+        i++;
       } else {
-        h+='<li class="row '+b.kind+'"><div class="tm">'+b.s+"–"+b.e+'</div><div class="ti">'+b.label+"</div></li>";
+        h+='<li class="row '+b.kind+'"><span class="period">'+b.jam+'</span><div class="tm">'+b.s+"–"+b.e+'</div><div class="ti">'+b.label+"</div></li>";
       }
-    });
+    }
     h+="</ul>";
   }
   if(k<=4) h+='<div class="tools"><button class="btn'+(isL?" on":"")+'" id="liburBtn" aria-pressed="'+isL+'">'+(isL?"Batalkan tanda libur":"Tandai libur")+"</button></div>";
