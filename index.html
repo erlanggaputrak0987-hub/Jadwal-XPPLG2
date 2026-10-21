@@ -250,14 +250,8 @@ function dayBlocks(d){
     else e={jam:j+1,s:tm[0],e:tm[1],kind:"spc",label:"Sholat Jumat"};
     out.push(e);
   }
-  var res=[];
-  out.forEach(function(e){
-    var p=res[res.length-1];
-    var same=p&&p.kind===e.kind&&p.jam2===e.jam-1&&(e.kind==="les"?p.code===e.code:p.label===e.label&&e.kind!=="brk");
-    if(same){p.jam2=e.jam;p.e=e.e}
-    else{var c={};for(var q in e)c[q]=e[q];c.jam1=e.jam;c.jam2=e.jam;res.push(c)}
-  });
-  return res;
+  out.forEach(function(e){e.jam1=e.jam;e.jam2=e.jam});
+  return out;
 }
 function subjectsOf(d){
   var b=dayBlocks(d); if(!b) return [];
