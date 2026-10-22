@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="id">
-  
+
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -20,7 +20,7 @@
   --surface:#f3e7cf;
   --ink:#3b2a20;
   --muted:#755f4b;
-  --line:#c7ad89;
+  --line:#c7ad89; 
   --accent:#7a263a;
   --accent-ink:#fff4df;
   --accent-soft:#e8d4b5;
@@ -119,14 +119,14 @@ header.top p{margin:4px 0 0;color:var(--page-subtitle);font-size:.9rem}
 .week-legend[hidden]{display:none}
 .week-key{display:inline-flex;align-items:center;gap:5px;padding:4px 7px;border:1px solid var(--line);border-radius:6px;font-size:.76rem}
 .week-swatch{width:10px;height:10px;border:2px solid var(--week-color);border-radius:3px;flex:none}
-.week-helper-on .cell.wk-1{--week-color:#c94c4c}
-.week-helper-on .cell.wk-2{--week-color:#db7b2b}
-.week-helper-on .cell.wk-3{--week-color:#c59a22}
-.week-helper-on .cell.wk-4{--week-color:#91a832}
-.week-helper-on .cell.wk-5{--week-color:#579956}
-.week-helper-on .cell.wk-6{--week-color:#247a46}
+.week-helper-on .cell.wk-1{--week-color:#c94c4c;--week-fill:rgba(201,76,76,.5)}
+.week-helper-on .cell.wk-2{--week-color:#db7b2b;--week-fill:rgba(219,123,43,.5)}
+.week-helper-on .cell.wk-3{--week-color:#e6c229;--week-fill:rgba(230,194,41,.5)}
+.week-helper-on .cell.wk-4{--week-color:#b7d83d;--week-fill:rgba(183,216,61,.5)}
+.week-helper-on .cell.wk-5{--week-color:#247a46;--week-fill:rgba(36,122,70,.5)}
+.week-helper-on .cell.wk-6{--week-color:#2878b8;--week-fill:rgba(40,120,184,.5)}
 .week-helper-on .grid,.week-helper-on.month-view .grid{column-gap:0}
-.week-helper-on .cell.wk-weekday{border:1px solid var(--week-color);border-radius:0;box-shadow:none}
+.week-helper-on .cell.wk-weekday{border:1px solid var(--week-color);border-radius:0;box-shadow:none;background-color:var(--week-fill)}
 .week-helper-on .cell.wk-weekday.wk-start{border-radius:5px 0 0 5px}
 .week-helper-on .cell.wk-weekday.wk-middle,.week-helper-on .cell.wk-weekday.wk-end{border-left:0}
 .week-helper-on .cell.wk-weekday:not(.wk-end){border-right:0}
@@ -518,7 +518,7 @@ function renderAll(){
   $("weekHelperBtn").setAttribute("aria-pressed",String(weekHelperOn));
   $("weekLegend").hidden=!weekHelperOn;
   $("weekLegend").innerHTML=weekHelperOn?[1,2,3,4,5,6].map(function(n){
-    var colors=["#c94c4c","#db7b2b","#c59a22","#91a832","#579956","#247a46"];
+    var colors=["#c94c4c","#db7b2b","#e6c229","#b7d83d","#247a46","#2878b8"];
     return '<span class="week-key" style="--week-color:'+colors[n-1]+'"><i class="week-swatch"></i>Jadwal minggu '+n+"</span>";
   }).join(""):"";
   renderChips();renderGrid();renderDetail();
