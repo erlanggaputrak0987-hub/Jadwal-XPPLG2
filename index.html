@@ -1,52 +1,79 @@
 <!doctype html>
 <html lang="id">
+  
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kalender Jadwal PPLG 2</title>
+<title>X PPLG 2 - Semester 1</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: kalender bulanan di kiri, rincian hari terpilih di kanan; satu kolom di ponsel.
-   Warna mengikuti seragam sekolah: biru dongker dan hijau. */
+/* ==========================================================
+   TEMA DAN WARNA
+   --bg mengatur latar cokelat retro, --surface warna krem
+   panel/tabel, dan --head-bg warna maroon untuk kepala.
+   Warna lain dipakai bersama oleh tombol, status libur,
+   filter, serta indikator warna pelajaran.
+   ========================================================== */
 :root{
   color-scheme:light;
-  --bg:#eef1f6;
-  --surface:#ffffff;
-  --ink:#10203f;
-  --muted:#5a6985;
-  --line:#d5dce8;
-  --accent:#0a7d55;
-  --accent-ink:#ffffff;
-  --accent-soft:#d9f0e6;
-  --navy:#10203f;
-  --navy-ink:#ffffff;
-  --libur:#f8e1e3;
-  --libur-ink:#9a3342;
+  --bg:#1d100b;
+  --surface:#f3e7cf;
+  --ink:#3b2a20;
+  --muted:#755f4b;
+  --line:#c7ad89;
+  --accent:#7a263a;
+  --accent-ink:#fff4df;
+  --accent-soft:#e8d4b5;
+  --navy:#672236;
+  --navy-ink:#fff4df;
+  --head-bg:#702238;
+  --head-ink:#fff4df;
+  --page-title:#f3e7cf;
+  --page-subtitle:#dfc9aa;
+  --libur:#ead0c5;
+  --libur-ink:#762d36;
   --dot-l:42%;
   --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
   --font-body:"Figtree","Segoe UI",system-ui,sans-serif;
   --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#0b1324;--surface:#131e37;--ink:#e8edf7;--muted:#97a4c0;--line:#27355a;
-    --accent:#3fcf98;--accent-ink:#06261a;--accent-soft:#12372f;
-    --navy:#e8edf7;--navy-ink:#0b1324;--libur:#3a2230;--libur-ink:#f0a3b0;--dot-l:66%;
-    color-scheme:dark;
-  }
-}
 :root[data-theme="dark"]{
-  --bg:#0b1324;--surface:#131e37;--ink:#e8edf7;--muted:#97a4c0;--line:#27355a;
-  --accent:#3fcf98;--accent-ink:#06261a;--accent-soft:#12372f;
-  --navy:#e8edf7;--navy-ink:#0b1324;--libur:#3a2230;--libur-ink:#f0a3b0;--dot-l:66%;
   color-scheme:dark;
+  --bg:#140a07;
+  --surface:#30251e;
+  --ink:#f2e5cf;
+  --muted:#c0aa8d;
+  --line:#594332;
+  --accent:#e19a72;
+  --accent-ink:#2b1914;
+  --accent-soft:#493426;
+  --navy:#e8c69d;
+  --navy-ink:#2b1914;
+  --head-bg:#571d30;
+  --head-ink:#fff0d7;
+  --libur:#512b2d;
+  --libur-ink:#ffd0bf;
+  --dot-l:66%;
+  --page-title:#f2e5cf;
+  --page-subtitle:#c0aa8d;
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
+/* Latar retro memakai tekstur abstrak tipis agar tidak mengganggu teks. */
 body{
   margin:0;
-  background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.45;
-  padding-block:20px 40px;
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(circle,rgba(235,202,157,.28) 0 1.5px,transparent 2px),
+    radial-gradient(ellipse at 88% 14%,rgba(122,38,58,.5),transparent 38%),
+    radial-gradient(circle at 78% 72%,transparent 0 54px,rgba(235,202,157,.12) 55px 57px,transparent 58px 92px,rgba(235,202,157,.08) 93px 95px,transparent 96px),
+    repeating-linear-gradient(135deg,transparent 0 43px,rgba(235,202,157,.075) 44px 45px,transparent 46px 88px),
+    linear-gradient(45deg,transparent 48%,rgba(122,38,58,.08) 49%,rgba(122,38,58,.08) 51%,transparent 52%);
+  background-size:32px 32px,auto,420px 420px,auto,180px 180px;
+  background-position:0 0,0 0,center 38%,0 0,24px 36px;
+  background-attachment:fixed;
+  color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.45;
+  padding-block:60px 40px;
   padding-left:max(16px,env(safe-area-inset-left,0px));
   padding-right:max(16px,env(safe-area-inset-right,0px));
 }
@@ -55,22 +82,60 @@ h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance}
 button{font:inherit;color:inherit;cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
+/* ==========================================================
+   KERANGKA HALAMAN DAN PANEL
+   Header aplikasi berada di atas. Kalender dan rincian
+   berdampingan pada layar lebar, lalu bertumpuk di ponsel.
+   ========================================================== */
 header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 20px}
 header.top h1{font-size:clamp(1.5rem,5vw,2.1rem);line-height:1.1;letter-spacing:-.01em}
-header.top p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
+header.top h1{color:var(--page-title)}
+header.top p{margin:4px 0 0;color:var(--page-subtitle);font-size:.9rem}
 .rot{font-family:var(--font-mono);font-size:.8rem;background:var(--navy);color:var(--navy-ink);padding:5px 10px;border-radius:6px;white-space:nowrap}
+.theme-toggle{position:fixed;z-index:20;top:max(12px,env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:6px 10px;min-height:36px;font-weight:600}
+.theme-toggle:hover{border-color:var(--accent)}
 
 .layout{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
 @media (min-width:900px){.layout{grid-template-columns:minmax(0,2fr) minmax(300px,.9fr)}.detail{position:sticky;top:16px}}
 
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px}
-.cal-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.cal-bar h2{font-size:1.25rem;flex:1 1 auto;min-width:9rem}
+/* Kepala kalender menampung navigasi tahun/bulan, tombol hari ini,
+   dan tombol kembali ke tahun saat tampilan satu bulan terbuka. */
+.cal-bar{display:flex;flex-direction:column;align-items:center;gap:8px;margin:-14px -14px 12px;padding:14px 14px 12px;border-radius:9px 9px 0 0;background:var(--head-bg);color:var(--head-ink)}
+.period-nav{display:grid;grid-template-columns:36px minmax(0,1fr) 36px;align-items:center;gap:8px;width:min(100%,360px)}
+.period-nav h2{font-size:1.25rem;text-align:center}
+.cal-actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;width:100%;padding-top:10px;border-top:1px solid var(--line)}
 .btn{background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:6px 12px;font-weight:500;min-height:36px}
 .btn:hover{border-color:var(--accent)}
 .btn.icon{width:36px;padding:0;font-size:1.1rem;line-height:1}
+.cal-bar .btn:not(.on){color:var(--ink)}
 .btn.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 
+/* Tombol bantuan dan legenda untuk melihat rentang putaran jadwal 1–6.
+   Warna weekday disatukan per Senin–Jumat; akhir pekan berdiri sendiri. */
+.week-helper{display:flex;justify-content:center;margin:-2px 0 10px}
+.week-helper .btn[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:var(--navy-ink)}
+.week-legend{display:flex;flex-wrap:wrap;gap:6px;margin:-2px 0 12px;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.week-legend[hidden]{display:none}
+.week-key{display:inline-flex;align-items:center;gap:5px;padding:4px 7px;border:1px solid var(--line);border-radius:6px;font-size:.76rem}
+.week-swatch{width:10px;height:10px;border:2px solid var(--week-color);border-radius:3px;flex:none}
+.week-helper-on .cell.wk-1{--week-color:#c94c4c}
+.week-helper-on .cell.wk-2{--week-color:#db7b2b}
+.week-helper-on .cell.wk-3{--week-color:#c59a22}
+.week-helper-on .cell.wk-4{--week-color:#91a832}
+.week-helper-on .cell.wk-5{--week-color:#579956}
+.week-helper-on .cell.wk-6{--week-color:#247a46}
+.week-helper-on .grid,.week-helper-on.month-view .grid{column-gap:0}
+.week-helper-on .cell.wk-weekday{border:1px solid var(--week-color);border-radius:0;box-shadow:none}
+.week-helper-on .cell.wk-weekday.wk-start{border-radius:5px 0 0 5px}
+.week-helper-on .cell.wk-weekday.wk-middle,.week-helper-on .cell.wk-weekday.wk-end{border-left:0}
+.week-helper-on .cell.wk-weekday:not(.wk-end){border-right:0}
+.week-helper-on .cell.wk-weekday.wk-end{border-radius:0 5px 5px 0}
+.week-helper-on .cell.wk-weekend{border:1px solid #938779;border-radius:5px;box-shadow:none}
+.week-helper-on .cell .dots{display:none}
+
+/* Filter pelajaran: satu chip untuk setiap mapel/pengajar.
+   Status aktif menyorot tanggal dan jam yang cocok dengan filter. */
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
 .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px;font-size:.78rem;font-weight:500}
 .chip:hover{border-color:var(--accent)}
@@ -78,11 +143,13 @@ header.top p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
 .dot{width:9px;height:9px;border-radius:50%;flex:none;background:hsl(var(--h,0) 62% var(--dot-l))}
 .chip[aria-pressed="true"] .dot{box-shadow:0 0 0 1.5px var(--navy-ink)}
 
+/* Grid tahunan berisi 12 kartu bulan yang dapat dibuka satu per satu.
+   Mode bulan menampilkan satu kalender dengan angka tanggal lebih besar. */
 .year-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .year-grid.month-view{grid-template-columns:minmax(0,1fr)}
 .month-card{min-width:0;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--surface)}
 .month-card h3{font-size:.92rem;margin:0 0 5px}
-.month-link{display:block;width:100%;min-height:32px;padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit;font-weight:600;text-align:center}
+.month-link{display:block;width:100%;min-height:32px;padding:4px 8px;border:1px solid #916b4d;border-radius:6px;background:#75563e;color:#fff4df;font:inherit;font-weight:600;text-align:center}
 .month-link:hover{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
 .month-view .month-card{padding:12px}
 .month-view .month-card h3{font-size:1.1rem;margin-bottom:10px}
@@ -107,13 +174,17 @@ header.top p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
 .cell .dots{display:flex;justify-content:center;flex-wrap:wrap;gap:1px;max-width:100%;min-height:3px}
 .cell .dots i{width:3px;height:3px;border-radius:50%;background:hsl(var(--h) 62% var(--dot-l))}
 .cell .jm{display:none}
+/* Jumlah kolom dan ukuran kalender menyesuaikan lebar layar. */
 @media (min-width:1200px){.year-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media (max-width:520px){.year-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.month-card{padding:6px}.month-card h3{font-size:.85rem}}
 
 .legend{margin:10px 0 0;color:var(--muted);font-size:.78rem}
 
+/* Panel rincian hari: kepala tanggal dan badge dipisahkan dari isi jadwal,
+   tombol libur, serta daftar tanggal mapel berikutnya. */
 .detail h2{font-size:1.3rem;line-height:1.15}
-.detail .sub{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 12px}
+.detail-head{margin:-14px -14px 12px;padding:14px;border-radius:9px 9px 0 0;background:var(--head-bg);color:var(--head-ink)}
+.detail .sub{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 0;padding-top:10px;border-top:1px solid var(--line)}
 .badge{font-family:var(--font-mono);font-size:.74rem;padding:3px 8px;border-radius:5px;background:var(--accent-soft);color:var(--accent);font-weight:500}
 .badge.warn{background:var(--libur);color:var(--libur-ink)}
 .rows{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
@@ -125,7 +196,7 @@ header.top p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
 .row .ti .dot{transform:translateY(0)}
 .row .gu{color:var(--muted);font-size:.84rem;margin-top:1px}
 .row.brk,.row.spc{padding:6px 0}
-.row.brk,.row-group.prayer{outline:1px solid #fff;outline-offset:4px;border-radius:6px}
+.row.brk,.row-group.prayer{outline:1px solid var(--head-bg);outline-offset:4px;border-radius:6px}
 .row.brk .ti,.row.spc .ti,.row.prayer-part .ti{font-weight:500;color:var(--muted);font-size:.86rem}
 .row-group.prayer{display:flex;flex-direction:column;gap:2px;padding:6px 0}
 .row.prayer-part{border:0;padding:0}
@@ -143,6 +214,7 @@ header.top p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
 .next button:hover{border-color:var(--accent)}
 .next .w{font-family:var(--font-mono);font-size:.74rem;color:var(--muted);text-align:right}
 
+/* Pengaturan putaran minggu yang menjadi acuan siklus jadwal. */
 details.set{font-size:.86rem}
 details.set summary{cursor:pointer;font-weight:600}
 details.set .body{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;color:var(--muted)}
@@ -152,24 +224,35 @@ select{font:inherit;background:var(--surface);color:var(--ink);border:1px solid 
 </head>
 <body>
 
+<button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false">Mode gelap</button>
 <div class="wrap">
+  <!-- Identitas kelas dan putaran jadwal yang sedang berlaku hari ini. -->
   <header class="top">
     <div>
-      <h1>Kalender Jadwal X PPLG 2</h1>
+      <h1>Kalender Jadwal Pelajaran X PPLG 2 - Semester 1</h1>
       <p>SMK Negeri 1 Garut · jadwal berputar 6 minggu · Senin–Jumat</p>
     </div>
     <div class="rot" id="rot">Minggu ini: jadwal 3</div>
   </header>
 
+  <!-- Area kerja utama: kalender di kiri/atas, rincian hari di kanan/bawah. -->
   <div class="layout">
     <section class="panel" aria-label="Kalender">
       <div class="cal-bar">
-        <h2 id="yearTitle">2026</h2>
-        <button class="btn icon" id="prev" aria-label="Tahun sebelumnya">‹</button>
-        <button class="btn" id="todayBtn">Hari ini</button>
-        <button class="btn icon" id="next" aria-label="Tahun berikutnya">›</button>
-        <button class="btn" id="yearViewBtn" hidden>Kembali ke tahun</button>
+        <div class="period-nav">
+          <button class="btn icon" id="prev" aria-label="Tahun sebelumnya">‹</button>
+          <h2 id="yearTitle">2026</h2>
+          <button class="btn icon" id="next" aria-label="Tahun berikutnya">›</button>
+        </div>
+        <div class="cal-actions">
+          <button class="btn" id="todayBtn">Hari ini</button>
+          <button class="btn" id="yearViewBtn" hidden>Kembali ke tahun</button>
+        </div>
       </div>
+      <div class="week-helper">
+        <button class="btn" id="weekHelperBtn" aria-pressed="false" aria-controls="weekLegend">Tampilkan outline jadwal minggu</button>
+      </div>
+      <div class="week-legend" id="weekLegend" role="group" aria-label="Warna jadwal minggu" hidden></div>
       <div class="chips" id="chips" role="group" aria-label="Cari pelajaran"></div>
       <div class="year-grid" id="grid"></div>
       <p class="legend">Titik berwarna menunjukkan pelajaran pada hari itu. Pilih tanggal untuk melihat jadwalnya, atau pilih nama pelajaran di atas untuk mencari tanggal terkait.</p>
@@ -187,7 +270,12 @@ select{font:inherit;background:var(--surface);color:var(--ink);border:1px solid 
 </div>
 
 <script>
-/* ---------- Data jadwal X PPLG 2 (dari 6 screenshot) ---------- */
+/* ==========================================================
+   DATA PELAJARAN DAN PENGAJAR
+   TEACH memakai kode singkat yang dirujuk oleh tabel W.
+   Setiap entri berisi nama guru dan label untuk kalender.
+   HUE mengatur rona titik serta chip filter tiap pelajaran.
+   ========================================================== */
 var TEACH = {
   FI:["Filly Nova Vionita, S.Pd.","Bahasa Indonesia"],
   RE:["Resmi Putri Utami, S.Pd.","Bahasa Sunda"],
@@ -198,9 +286,9 @@ var TEACH = {
   GR:["Gradesi Widya Dara, S.Pd.","Seni Budaya"],
   ER:["Erna Latifah, S.Sy.","Pendidikan Agama"],
   KH:["Kharisman Fajar Ramadhan, S.Pd.","IPAS/Sejarah"],
-  RA:["Rahmi Aprianti, S.Pd.","Dasar-dasar/Konsentrasi RPL"],
-  RV:["Revy Cahya, S.Kom.","Dasar-dasar/Konsentrasi RPL"],
-  AS:["Asep Ulumudin, S.Kom.","Dasar-dasar/Konsentrasi RPL"],
+  RA:["Rahmi Aprianti, S.Pd.","(W) DD. K. RPL"],
+  RV:["Revy Cahya, S.Kom.","(R) DD. K. RPL"],
+  AS:["Asep Ulumudin, S.Kom.","(A) DD. K. RPL"],
   FA:["Fahru Nisa Aulia, S.Kom.","Informatika/Dasar DKV"],
   AR:["A. Arief Pachman, S.Si., M.Kom.","KKA/Konsentrasi TKJ/RPL"],
   HE:["Heti Kusmawati, S.Pd., M.Pd.","Matematika"],
@@ -209,11 +297,17 @@ var TEACH = {
 var HUE = {
   "Bahasa Indonesia":8,"Bahasa Sunda":30,"Matematika":50,"Pendidikan Agama":90,"IPAS/Sejarah":125,
   "PJOK/PKK":160,"Informatika/Dasar DKV":178,"IPAS/Matematika":195,"KKA/Konsentrasi TKJ/RPL":215,
-  "Dasar-dasar/Konsentrasi RPL":245,"BP/BK":275,"B. Inggris":300,"Seni Budaya":325,"Pendidikan Pancasila":350
+  "(W) DD. K. RPL":238,"(R) DD. K. RPL":248,"(A) DD. K. RPL":258,
+  "BP/BK":275,"B. Inggris":300,"Seni Budaya":325,"Pendidikan Pancasila":350
 };
+/* Kode kegiatan non-mapel yang dapat muncul di jadwal harian. */
 var SPECIAL = {U:"Upacara",M:"Morning Share",S:"Sholat Jumat",I:"Istirahat"};
-/* Tiap hari: kode guru per jam pelajaran, tanpa istirahat.
-   Sen/Sel & Rab/Kam: 11 jam pelajaran. Jumat: Morning Share lalu 8 jam pelajaran. */
+/* ==========================================================
+   DATA SIKLUS JADWAL ENAM MINGGU
+   Setiap kode pada W adalah guru per jam pelajaran. Susunan
+   waktu dan KINDS menentukan jam belajar, istirahat, kegiatan,
+   serta pola berbeda untuk Senin/Selasa, Rabu/Kamis, dan Jumat.
+   ========================================================== */
 var W = {
  1:{sen:"U RE RE ME ME FI FI IM IM IM IM",sel:"FI FI FI FI DE AR AR RE RE WI WI",rab:"ME ME ER ER ER WI WI IM IM IM IM",kam:"IM IM IM IM GR GR FI FI ER ER ER",jum:"KH KH KH KH GR GR ME ME"},
  2:{sen:"U RA RA RA RA RV RV FA FA FA FA",sel:"LI LI DE AR AR HE HE RA RA RA RA",rab:"HE HE HE LI LI AS AS AS AS AS AS",kam:"HE HE HE LI LI RV RV RV RV AS AS",jum:"LI LI FA FA FA FA RV RV"},
@@ -227,6 +321,7 @@ var TIMES = {
   B:["06.30-07.10","07.10-07.50","07.50-08.30","08.30-09.10","09.10-09.50","09.50-10.20","10.20-11.00","11.00-11.40","11.40-12.20","12.20-13.00","13.00-13.40","13.40-14.20","14.20-15.00"],
   C:["06.30-07.10","07.10-07.50","07.50-08.30","08.30-09.10","09.15-10.00","10.00-10.30","10.20-11.00","11.00-11.40","11.40-12.20","12.20-13.00","13.00-13.40","13.40-14.20"]
 };
+/* Jenis setiap slot: L=pelajaran, I=istirahat, S=slot khusus Jumat. */
 var KINDS = {
   A:"L L L L I L L L I L L L L".split(" "),
   B:"L L L L L I L L I L L L L".split(" "),
@@ -234,12 +329,18 @@ var KINDS = {
 };
 var DAYS_FULL=["Senin","Selasa","Rabu","Kamis","Jumat","Sabtu","Minggu"];
 var DAYS_SHORT=["Sen","Sel","Rab","Kam","Jum","Sab","Min"];
+/* Posisi bulan pada MONTHS sama dengan indeks Date.getMonth(): Januari=0. */
 var MONTHS=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 var DKEY=["sen","sel","rab","kam","jum"];
 
-/* ---------- Logika tanggal dan jadwal ---------- */
+/* ==========================================================
+   PERHITUNGAN TANGGAL DAN PUTARAN
+   ANCHOR adalah Senin acuan untuk siklus. Perhitungan hari
+   menggunakan Senin=0 agar cocok dengan tabel W dan kalender.
+   ========================================================== */
 var ANCHOR = new Date(2026,9,19);
 var anchorWeek = 3;
+/* Helper tanggal lokal untuk label, perbandingan hari, dan kalender. */
 function pad(n){return String(n).padStart(2,"0")}
 function iso(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
 function utc(d){return Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())}
@@ -247,10 +348,13 @@ function addDays(d,n){var x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x
 function dow(d){return (d.getDay()+6)%7}
 function mondayOf(d){return addDays(d,-dow(d))}
 function weekNo(d){
+  /* Siklus berulang tiap enam minggu dengan Senin sebagai awal minggu. */
   var diff=Math.round((utc(mondayOf(d))-utc(ANCHOR))/604800000);
   return (((diff+anchorWeek-1)%6)+6)%6+1;
 }
 function sameDay(a,b){return iso(a)===iso(b)}
+/* Bentuk daftar jam pelajaran untuk satu tanggal, atau null
+   jika tanggal tersebut jatuh pada akhir pekan. */
 function dayBlocks(d){
   var k=dow(d); if(k>4) return null;
   var w=weekNo(d), type=k<2?"A":k<4?"B":"C";
@@ -274,17 +378,26 @@ function subjectsOf(d){
   var s=[]; b.forEach(function(x){if(x.kind==="les"&&s.indexOf(x.subj)<0)s.push(x.subj)});
   return s;
 }
+/* Menggabungkan nomor jam berurutan untuk ringkasan pencarian. */
 function rangeFor(d,subj){
   var b=dayBlocks(d); if(!b) return "";
   var r=b.filter(function(x){return x.kind==="les"&&x.subj===subj});
   return r.map(function(x){return x.jam1===x.jam2?"J"+x.jam1:"J"+x.jam1+"–"+x.jam2}).join(", ");
 }
 
-/* ---------- Tampilan ---------- */
-var libur=new Set(), filter=null, today=new Date();
+/* ==========================================================
+   STATUS APLIKASI DAN PREFERENSI
+   Menyimpan tanggal terpilih, tampilan tahun/bulan, filter,
+   penanda libur, pilihan acuan siklus jadwal, serta tema.
+   ========================================================== */
+document.documentElement.dataset.theme="light";
+var libur=new Set(), filter=null, today=new Date(), weekHelperOn=false;
 today=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+/* viewMonth=null berarti kalender 12 bulan; angka 0–11 berarti satu bulan. */
 var sel=today, viewYear=today.getFullYear(), viewMonth=null;
 try{
+  var savedTheme=localStorage.getItem("pplg2-theme");
+  document.documentElement.dataset.theme=savedTheme==="dark"?"dark":"light";
   var a=parseInt(localStorage.getItem("pplg2-anchor"),10); if(a>=1&&a<=6) anchorWeek=a;
   var l=JSON.parse(localStorage.getItem("pplg2-libur")||"[]"); if(Array.isArray(l)) l.forEach(function(x){libur.add(x)});
 }catch(e){}
@@ -293,6 +406,7 @@ function $(id){return document.getElementById(id)}
 function fmtLong(d){return DAYS_FULL[dow(d)]+", "+d.getDate()+" "+MONTHS[d.getMonth()]+" "+d.getFullYear()}
 function fmtShort(d){return DAYS_SHORT[dow(d)]+", "+d.getDate()+" "+MONTHS[d.getMonth()].slice(0,3)}
 
+/* Membangun chip filter berdasarkan daftar pelajaran yang tersedia. */
 function renderChips(){
   var h='<button class="chip" aria-pressed="'+(filter===null)+'" data-s="">Semua</button>';
   Object.keys(HUE).sort().forEach(function(s){
@@ -300,7 +414,10 @@ function renderChips(){
   });
   $("chips").innerHTML=h;
 }
+/* Menggambar satu bulan atau seluruh 12 bulan, termasuk status
+   tanggal, titik pelajaran, libur, filter, dan outline minggu. */
 function renderGrid(){
+  /* Gunakan viewMonth untuk menentukan apakah yang dirender satu atau 12 bulan. */
   var isMonthView=viewMonth!==null;
   $("yearTitle").textContent=isMonthView?MONTHS[viewMonth]+" "+viewYear:String(viewYear);
   $("prev").setAttribute("aria-label",isMonthView?"Bulan sebelumnya":"Tahun sebelumnya");
@@ -316,7 +433,14 @@ function renderGrid(){
     cells+=DAYS_SHORT.map(function(n){return '<div class="dh">'+n+"</div>"}).join("");
     for(var blank=0;blank<offset;blank++) cells+='<span class="cell blank" aria-hidden="true"></span>';
     for(var day=1;day<=days;day++){
+      /* Kelas wk-* menjadi acuan warna outline saat bantuan minggu aktif. */
       var d=new Date(viewYear,m,day), c=dow(d), subs=subjectsOf(d), cls=["cell"], isL=libur.has(iso(d));
+      if(weekHelperOn){
+        cls.push("wk-"+weekNo(d),c<5?"wk-weekday":"wk-weekend");
+        if(c===0) cls.push("wk-start");
+        else if(c>0&&c<4) cls.push("wk-middle");
+        else if(c===4) cls.push("wk-end");
+      }
       if(c>4) cls.push("we");
       if(isL&&c<5) cls.push("libur");
       if(sameDay(d,today)) cls.push("today");
@@ -334,13 +458,16 @@ function renderGrid(){
   }
   $("grid").innerHTML=h;
 }
+/* Menggambar jadwal rinci untuk tanggal terpilih beserta badge,
+   aksi menandai libur, dan daftar tanggal pelajaran berikutnya. */
 function renderDetail(){
+  /* Kepala rincian memuat tanggal dan status; isi di bawahnya mengikuti hari. */
   var k=dow(sel), w=weekNo(sel), h="";
-  h+='<h2>'+fmtLong(sel)+'</h2><div class="sub"><span class="badge">Jadwal minggu '+w+'</span>';
+  h+='<div class="detail-head"><h2>'+fmtLong(sel)+'</h2><div class="sub"><span class="badge">Jadwal minggu '+w+'</span>';
   if(sameDay(sel,today)) h+='<span class="badge">Hari ini</span>';
   var isL=libur.has(iso(sel));
   if(isL) h+='<span class="badge warn">Libur</span>';
-  h+="</div>";
+  h+="</div></div>";
   if(k>4){ h+='<p class="empty">Akhir pekan, tidak ada jam pelajaran.</p>'; }
   else if(isL){ h+='<p class="empty">Tanggal ini kamu tandai libur.</p>'; }
   else{
@@ -381,11 +508,24 @@ function renderDetail(){
   }
   $("detail").innerHTML=h;
 }
+/* Sinkronkan semua bagian UI setelah tanggal, filter, atau setelan berubah. */
 function renderAll(){
+  /* Render ulang dipusatkan di sini supaya perubahan state konsisten di semua panel. */
   $("rot").textContent="Minggu ini: jadwal "+weekNo(today);
+  $("themeToggle").textContent=document.documentElement.dataset.theme==="dark"?"Mode terang":"Mode gelap";
+  $("themeToggle").setAttribute("aria-pressed",String(document.documentElement.dataset.theme==="dark"));
+  $("grid").classList.toggle("week-helper-on",weekHelperOn);
+  $("weekHelperBtn").setAttribute("aria-pressed",String(weekHelperOn));
+  $("weekLegend").hidden=!weekHelperOn;
+  $("weekLegend").innerHTML=weekHelperOn?[1,2,3,4,5,6].map(function(n){
+    var colors=["#c94c4c","#db7b2b","#c59a22","#91a832","#579956","#247a46"];
+    return '<span class="week-key" style="--week-color:'+colors[n-1]+'"><i class="week-swatch"></i>Jadwal minggu '+n+"</span>";
+  }).join(""):"";
   renderChips();renderGrid();renderDetail();
 }
 function parseISO(s){var p=s.split("-");return new Date(+p[0],+p[1]-1,+p[2])}
+/* Klik nama bulan membuka tampilan bulan; klik tanggal memilih hari.
+   Perubahan tanggal tidak memaksa keluar dari tampilan yang sedang dibuka. */
 $("grid").addEventListener("click",function(e){
   var monthButton=e.target.closest("[data-month]");
   if(monthButton){
@@ -399,15 +539,30 @@ $("grid").addEventListener("click",function(e){
   viewYear=sel.getFullYear();
   renderAll();
 });
+/* Mengganti filter akan menyorot pelajaran terkait di kalender dan rincian. */
 $("chips").addEventListener("click",function(e){
   var b=e.target.closest("[data-s]"); if(!b) return;
   var s=b.dataset.s||null; filter=(filter===s)?null:s; renderAll();
 });
+/* Bantuan outline hanya mengubah penekanan warna tanggal, bukan jadwal. */
+$("weekHelperBtn").addEventListener("click",function(){
+  weekHelperOn=!weekHelperOn;
+  renderAll();
+});
+/* Tema dipilih pengguna dan disimpan tanpa mengikuti preferensi perangkat. */
+$("themeToggle").addEventListener("click",function(){
+  var nextTheme=document.documentElement.dataset.theme==="dark"?"light":"dark";
+  document.documentElement.dataset.theme=nextTheme;
+  try{localStorage.setItem("pplg2-theme",nextTheme)}catch(e){}
+  renderAll();
+});
+/* Aksi pada panel rincian: lompat ke tanggal lain atau ubah status libur. */
 $("detail").addEventListener("click",function(e){
   var j=e.target.closest("[data-jump]");
   if(j){sel=parseISO(j.dataset.jump);viewYear=sel.getFullYear();if(viewMonth!==null)viewMonth=sel.getMonth();renderAll();return}
   if(e.target.id==="liburBtn"){var k=iso(sel);libur.has(k)?libur.delete(k):libur.add(k);save();renderAll()}
 });
+/* Geser setahun pada tampilan tahun atau sebulan pada tampilan bulan. */
 function changePeriod(amount){
   if(viewMonth===null){
     viewYear+=amount;
@@ -421,11 +576,13 @@ function changePeriod(amount){
   }
   renderAll();
 }
+/* Tombol navigasi periode dan pintasan ke tanggal hari ini. */
 $("prev").onclick=function(){changePeriod(-1)};
 $("next").onclick=function(){changePeriod(1)};
-$("todayBtn").onclick=function(){sel=today;viewYear=today.getFullYear();viewMonth=null;renderAll()};
+$("todayBtn").onclick=function(){var isMonthView=viewMonth!==null;sel=today;viewYear=today.getFullYear();viewMonth=isMonthView?today.getMonth():null;renderAll()};
 $("yearViewBtn").onclick=function(){viewMonth=null;renderAll()};
 (function(){
+  /* Pilihan 1–6 menentukan putaran untuk tanggal Senin acuan di atas. */
   var s=$("anchorSel"),h="";
   for(var i=1;i<=6;i++) h+='<option value="'+i+'"'+(i===anchorWeek?" selected":"")+">"+i+"</option>";
   s.innerHTML=h;
