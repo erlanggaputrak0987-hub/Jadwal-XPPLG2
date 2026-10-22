@@ -79,8 +79,17 @@ header.top p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
 .chip[aria-pressed="true"] .dot{box-shadow:0 0 0 1.5px var(--navy-ink)}
 
 .year-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.year-grid.month-view{grid-template-columns:minmax(0,1fr)}
 .month-card{min-width:0;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--surface)}
 .month-card h3{font-size:.92rem;margin:0 0 5px}
+.month-link{display:block;width:100%;min-height:32px;padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit;font-weight:600;text-align:center}
+.month-link:hover{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.month-view .month-card{padding:12px}
+.month-view .month-card h3{font-size:1.1rem;margin-bottom:10px}
+.month-view .grid{gap:4px}
+.month-view .dh{font-size:.78rem;padding:4px 0 8px}
+.month-view .cell .n{font-size:.95rem}
+.month-view .cell .dots i{width:5px;height:5px}
 .grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}
 .dh{font-size:.62rem;font-weight:600;color:var(--muted);text-transform:uppercase;text-align:center;padding:1px 0 3px}
 .cell{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
@@ -159,6 +168,7 @@ select{font:inherit;background:var(--surface);color:var(--ink);border:1px solid 
         <button class="btn icon" id="prev" aria-label="Tahun sebelumnya">‹</button>
         <button class="btn" id="todayBtn">Hari ini</button>
         <button class="btn icon" id="next" aria-label="Tahun berikutnya">›</button>
+        <button class="btn" id="yearViewBtn" hidden>Kembali ke tahun</button>
       </div>
       <div class="chips" id="chips" role="group" aria-label="Cari pelajaran"></div>
       <div class="year-grid" id="grid"></div>
@@ -273,7 +283,7 @@ function rangeFor(d,subj){
 /* ---------- Tampilan ---------- */
 var libur=new Set(), filter=null, today=new Date();
 today=new Date(today.getFullYear(),today.getMonth(),today.getDate());
-var sel=today, viewYear=today.getFullYear();
+var sel=today, viewYear=today.getFullYear(), viewMonth=null;
 try{
   var a=parseInt(localStorage.getItem("pplg2-anchor"),10); if(a>=1&&a<=6) anchorWeek=a;
   var l=JSON.parse(localStorage.getItem("pplg2-libur")||"[]"); if(Array.isArray(l)) l.forEach(function(x){libur.add(x)});
@@ -291,9 +301,16 @@ function renderChips(){
   $("chips").innerHTML=h;
 }
 function renderGrid(){
-  $("yearTitle").textContent=String(viewYear);
+  var isMonthView=viewMonth!==null;
+  $("yearTitle").textContent=isMonthView?MONTHS[viewMonth]+" "+viewYear:String(viewYear);
+  $("prev").setAttribute("aria-label",isMonthView?"Bulan sebelumnya":"Tahun sebelumnya");
+  $("next").setAttribute("aria-label",isMonthView?"Bulan berikutnya":"Tahun berikutnya");
+  $("yearViewBtn").hidden=!isMonthView;
+  $("grid").classList.toggle("month-view",isMonthView);
   var h="";
-  for(var m=0;m<12;m++){
+  var firstMonth=isMonthView?viewMonth:0, monthCount=isMonthView?1:12;
+  for(var monthOffset=0;monthOffset<monthCount;monthOffset++){
+    var m=firstMonth+monthOffset;
     var first=new Date(viewYear,m,1), days=new Date(viewYear,m+1,0).getDate();
     var offset=dow(first), cells="";
     cells+=DAYS_SHORT.map(function(n){return '<div class="dh">'+n+"</div>"}).join("");
@@ -311,7 +328,9 @@ function renderGrid(){
       else if(isL&&c<5) inner+='<span class="dots"></span>';
       cells+='<button class="'+cls.join(" ")+'" data-d="'+iso(d)+'" aria-label="'+fmtLong(d)+(subs.length?", "+subs.join(", "):"")+'">'+inner+"</button>";
     }
-    h+='<section class="month-card" aria-label="'+MONTHS[m]+' '+viewYear+'"><h3>'+MONTHS[m]+'</h3><div class="grid">'+cells+"</div></section>";
+    h+='<section class="month-card" aria-label="'+MONTHS[m]+' '+viewYear+'"><h3>';
+    h+=isMonthView?MONTHS[m]:'<button class="month-link" data-month="'+m+'" aria-label="Buka bulan '+MONTHS[m]+' '+viewYear+'">'+MONTHS[m]+'</button>';
+    h+='</h3><div class="grid">'+cells+"</div></section>";
   }
   $("grid").innerHTML=h;
 }
@@ -368,6 +387,13 @@ function renderAll(){
 }
 function parseISO(s){var p=s.split("-");return new Date(+p[0],+p[1]-1,+p[2])}
 $("grid").addEventListener("click",function(e){
+  var monthButton=e.target.closest("[data-month]");
+  if(monthButton){
+    viewMonth=+monthButton.dataset.month;
+    sel=new Date(viewYear,viewMonth,1);
+    renderAll();
+    return;
+  }
   var b=e.target.closest("[data-d]"); if(!b) return;
   sel=parseISO(b.dataset.d);
   viewYear=sel.getFullYear();
@@ -379,18 +405,26 @@ $("chips").addEventListener("click",function(e){
 });
 $("detail").addEventListener("click",function(e){
   var j=e.target.closest("[data-jump]");
-  if(j){sel=parseISO(j.dataset.jump);viewYear=sel.getFullYear();renderAll();return}
+  if(j){sel=parseISO(j.dataset.jump);viewYear=sel.getFullYear();if(viewMonth!==null)viewMonth=sel.getMonth();renderAll();return}
   if(e.target.id==="liburBtn"){var k=iso(sel);libur.has(k)?libur.delete(k):libur.add(k);save();renderAll()}
 });
-function changeYear(amount){
-  viewYear+=amount;
-  var day=Math.min(sel.getDate(),new Date(viewYear,sel.getMonth()+1,0).getDate());
-  sel=new Date(viewYear,sel.getMonth(),day);
+function changePeriod(amount){
+  if(viewMonth===null){
+    viewYear+=amount;
+    var day=Math.min(sel.getDate(),new Date(viewYear,sel.getMonth()+1,0).getDate());
+    sel=new Date(viewYear,sel.getMonth(),day);
+  }else{
+    var nextDate=new Date(viewYear,viewMonth+amount,1);
+    viewYear=nextDate.getFullYear();
+    viewMonth=nextDate.getMonth();
+    sel=new Date(viewYear,viewMonth,Math.min(sel.getDate(),new Date(viewYear,viewMonth+1,0).getDate()));
+  }
   renderAll();
 }
-$("prev").onclick=function(){changeYear(-1)};
-$("next").onclick=function(){changeYear(1)};
-$("todayBtn").onclick=function(){sel=today;viewYear=today.getFullYear();renderAll()};
+$("prev").onclick=function(){changePeriod(-1)};
+$("next").onclick=function(){changePeriod(1)};
+$("todayBtn").onclick=function(){sel=today;viewYear=today.getFullYear();viewMonth=null;renderAll()};
+$("yearViewBtn").onclick=function(){viewMonth=null;renderAll()};
 (function(){
   var s=$("anchorSel"),h="";
   for(var i=1;i<=6;i++) h+='<option value="'+i+'"'+(i===anchorWeek?" selected":"")+">"+i+"</option>";
