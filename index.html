@@ -148,6 +148,7 @@ header.top p{margin:4px 0 0;color:var(--page-subtitle);font-size:.9rem}
 .year-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .year-grid.month-view{grid-template-columns:minmax(0,1fr)}
 .month-card{min-width:0;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--surface)}
+.month-card.current-month{border:2px solid var(--accent);box-shadow:0 0 0 2px var(--accent-soft),0 0 0 3px var(--accent)}
 .month-card h3{font-size:.92rem;margin:0 0 5px}
 .month-link{display:block;width:100%;min-height:32px;padding:4px 8px;border:1px solid #916b4d;border-radius:6px;background:#75563e;color:#fff4df;font:inherit;font-weight:600;text-align:center}
 .month-link:hover{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
@@ -187,6 +188,13 @@ header.top p{margin:4px 0 0;color:var(--page-subtitle);font-size:.9rem}
 .detail .sub{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 0;padding-top:10px;border-top:1px solid var(--line)}
 .badge{font-family:var(--font-mono);font-size:.74rem;padding:3px 8px;border-radius:5px;background:var(--accent-soft);color:var(--accent);font-weight:500}
 .badge.warn{background:var(--libur);color:var(--libur-ink)}
+.week-summary{margin:0 0 14px}
+.week-summary h3,.daily-schedule h3{font-size:1rem;margin-bottom:8px}
+.week-subjects{list-style:none;margin:0;padding:0}
+.week-subjects li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:.86rem}
+.week-subjects li:first-child{border-top:0}
+.week-subjects .days{color:var(--muted);text-align:right}
+.daily-schedule{padding-top:12px;border-top:1px solid var(--line)}
 .rows{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
 .row{display:grid;grid-template-columns:1.5rem 6.4rem minmax(0,1fr);gap:8px;padding:9px 0;border-top:1px solid var(--line)}
 .row:first-child{border-top:0}
@@ -213,6 +221,12 @@ header.top p{margin:4px 0 0;color:var(--page-subtitle);font-size:.9rem}
 .next button{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:7px 10px;font-size:.86rem}
 .next button:hover{border-color:var(--accent)}
 .next .w{font-family:var(--font-mono);font-size:.74rem;color:var(--muted);text-align:right}
+
+.class-photo{padding:0;overflow:hidden}
+.class-photo-head{padding:14px;background:var(--head-bg);color:var(--head-ink);text-align:center}
+.class-photo-head h2{font-size:1.2rem}
+.class-photo-head p{margin:6px 0 0;color:var(--page-subtitle)}
+.class-photo img{display:block;width:100%;height:auto}
 
 /* Pengaturan putaran minggu yang menjadi acuan siklus jadwal. */
 details.set{font-size:.86rem}
@@ -246,7 +260,7 @@ select{font:inherit;background:var(--surface);color:var(--ink);border:1px solid 
         </div>
         <div class="cal-actions">
           <button class="btn" id="todayBtn">Hari ini</button>
-          <button class="btn" id="yearViewBtn" hidden>Kembali ke tahun</button>
+          <button class="btn" id="yearViewBtn" hidden>Tahunan</button>
         </div>
       </div>
       <div class="week-helper">
@@ -267,6 +281,14 @@ select{font:inherit;background:var(--surface);color:var(--ink);border:1px solid 
 
     <aside class="panel detail" id="detail" aria-live="polite"></aside>
   </div>
+  <section class="panel class-photo" aria-label="X PPLG 2 angkatan 2026–2027">
+    <div class="class-photo-head">
+      <h2>X PPLG 2 | 2026 - 2027</h2>
+      <p>Kegelapan terpancar biasan cahaya yang menyakitkan</p>
+      <p>Manusia manusia aneh</p>
+    </div>
+    <img src="foto/XPPLG.png" alt="Foto kelas X PPLG 2">
+  </section>
 </div>
 
 <script>
@@ -289,14 +311,14 @@ var TEACH = {
   RA:["Rahmi Aprianti, S.Pd.","(W) DD. K. RPL"],
   RV:["Revy Cahya, S.Kom.","(R) DD. K. RPL"],
   AS:["Asep Ulumudin, S.Kom.","(A) DD. K. RPL"],
-  FA:["Fahru Nisa Aulia, S.Kom.","Informatika/Dasar DKV"],
+  FA:["Fahru Nisa Aulia, S.Kom.","Informatika"],
   AR:["A. Arief Pachman, S.Si., M.Kom.","KKA/Konsentrasi TKJ/RPL"],
   HE:["Heti Kusmawati, S.Pd., M.Pd.","Matematika"],
   LI:["Lita Nurapiyani, S.Pd.","B. Inggris"]
 };
 var HUE = {
   "Bahasa Indonesia":8,"Bahasa Sunda":30,"Matematika":50,"Pendidikan Agama":90,"IPAS/Sejarah":125,
-  "PJOK/PKK":160,"Informatika/Dasar DKV":178,"IPAS/Matematika":195,"KKA/Konsentrasi TKJ/RPL":215,
+  "PJOK/PKK":160,"Informatika":178,"IPAS/Matematika":195,"KKA/Konsentrasi TKJ/RPL":215,
   "(W) DD. K. RPL":238,"(R) DD. K. RPL":248,"(A) DD. K. RPL":258,
   "BP/BK":275,"B. Inggris":300,"Seni Budaya":325,"Pendidikan Pancasila":350
 };
@@ -394,7 +416,10 @@ document.documentElement.dataset.theme="light";
 var libur=new Set(), filter=null, today=new Date(), weekHelperOn=false;
 today=new Date(today.getFullYear(),today.getMonth(),today.getDate());
 /* viewMonth=null berarti kalender 12 bulan; angka 0–11 berarti satu bulan. */
-var sel=today, viewYear=today.getFullYear(), viewMonth=null;
+/* Variabel untuk tanggal yang dimunculkan di jadwal pelajaran. */
+var sel=today;
+/* Variabel berisi tahun. */
+var viewYear=today.getFullYear(), viewMonth=today.getMonth();
 try{
   var savedTheme=localStorage.getItem("pplg2-theme");
   document.documentElement.dataset.theme=savedTheme==="dark"?"dark":"light";
@@ -452,7 +477,7 @@ function renderGrid(){
       else if(isL&&c<5) inner+='<span class="dots"></span>';
       cells+='<button class="'+cls.join(" ")+'" data-d="'+iso(d)+'" aria-label="'+fmtLong(d)+(subs.length?", "+subs.join(", "):"")+'">'+inner+"</button>";
     }
-    h+='<section class="month-card" aria-label="'+MONTHS[m]+' '+viewYear+'"><h3>';
+    h+='<section class="month-card'+(viewYear===today.getFullYear()&&m===today.getMonth()?" current-month":"")+'" aria-label="'+MONTHS[m]+' '+viewYear+'"><h3>';
     h+=isMonthView?MONTHS[m]:'<button class="month-link" data-month="'+m+'" aria-label="Buka bulan '+MONTHS[m]+' '+viewYear+'">'+MONTHS[m]+'</button>';
     h+='</h3><div class="grid">'+cells+"</div></section>";
   }
@@ -463,11 +488,29 @@ function renderGrid(){
 function renderDetail(){
   /* Kepala rincian memuat tanggal dan status; isi di bawahnya mengikuti hari. */
   var k=dow(sel), w=weekNo(sel), h="";
-  h+='<div class="detail-head"><h2>'+fmtLong(sel)+'</h2><div class="sub"><span class="badge">Jadwal minggu '+w+'</span>';
+  h+='<div class="detail-head"><h2>'+fmtLong(sel)+'</h2><div class="sub"><span class="badge">Minggu ke-'+w+'</span>';
   if(sameDay(sel,today)) h+='<span class="badge">Hari ini</span>';
   var isL=libur.has(iso(sel));
   if(isL) h+='<span class="badge warn">Libur</span>';
   h+="</div></div>";
+  var weekStart=mondayOf(sel), weeklySubjects=[];
+  for(var dayIndex=0;dayIndex<5;dayIndex++){
+    var weekDay=addDays(weekStart,dayIndex), daySubjects=subjectsOf(weekDay);
+    for(var subjectIndex=0;subjectIndex<daySubjects.length;subjectIndex++){
+      var subject=daySubjects[subjectIndex], entry=null;
+      for(var existing=0;existing<weeklySubjects.length;existing++){
+        if(weeklySubjects[existing].name===subject){entry=weeklySubjects[existing];break}
+      }
+      if(!entry){entry={name:subject,days:[]};weeklySubjects.push(entry)}
+      entry.days.push(DAYS_FULL[dayIndex]);
+    }
+  }
+  h+='<section class="week-summary" aria-label="Ringkasan minggu"><h3>Pelajaran minggu ke-'+w+'</h3><ul class="week-subjects">';
+  for(var subjectIndex=0;subjectIndex<weeklySubjects.length;subjectIndex++){
+    var weeklySubject=weeklySubjects[subjectIndex];
+    h+='<li><span>'+weeklySubject.name+'</span><span class="days">'+weeklySubject.days.join(", ")+'</span></li>';
+  }
+  h+="</ul></section><section class=\"daily-schedule\"><h3>Jadwal Pelajaran</h3>";
   if(k>4){ h+='<p class="empty">Akhir pekan, tidak ada jam pelajaran.</p>'; }
   else if(isL){ h+='<p class="empty">Tanggal ini kamu tandai libur.</p>'; }
   else{
@@ -492,6 +535,7 @@ function renderDetail(){
     }
     h+="</ul>";
   }
+  h+="</section>";
   if(k<=4) h+='<div class="tools"><button class="btn'+(isL?" on":"")+'" id="liburBtn" aria-pressed="'+isL+'">'+(isL?"Batalkan tanda libur":"Tandai libur")+"</button></div>";
   if(filter){
     h+='<div class="next"><h3>Tanggal '+filter+'</h3><ul>';
